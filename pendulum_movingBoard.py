@@ -14,6 +14,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
+# ===================================================
+# //////////////////////// FUNCTIONS
+# =======================================
 def pendulumBoard(s, t, param):
     '''
     Returns right-hand side of board pendulum equations, used for RK4
@@ -83,7 +86,10 @@ def rk4(x, t, tau, derivsRK, param):
     return x
     
 
-    
+# ===================================================
+# //////////////////////// PROGRAM
+# =======================================
+
 print(    '''
     Models motion of a pendulum bob attached at the end to a board that can 
     translate freely in the X axis with the fourth order Runge-Kutta method.
@@ -148,7 +154,7 @@ print("\nWith constants:")
 print("  m = {} kg".format(m))
 print("  L = {} m".format(L))
 print("  M = {} kg".format(M))
-print("Initial Conditions:")
+print("Initial conditions:")
 print("  phi = {} deg".format(phi0*180/pi))
 print("  w0 = {} deg/s".format(w0 * 180/pi))
 print("  v0 = {} m/s".format(v0))
@@ -157,7 +163,6 @@ print("  v0 = {} m/s".format(v0))
 # Plotting cartesian motion, radial motion, and angular motion
 curr_pos = -1
 plotMotion = True
-plotTrace = False
 def updateChart():
     global ax1, fig1
     
@@ -189,7 +194,7 @@ def updateChart():
         ax1.plot([minX-L/2,maxX+L/2],[0,0], color='k', linestyle='-', linewidth=2)
         
     if not plotMotion:
-        if ax1.get_visible() and not plotTrace:
+        if ax1.get_visible():
             ax1.set_visible(False)
         if not ax2.get_visible():
             ax2.set_visible(True)
@@ -232,7 +237,7 @@ def press(e):
 
     updateChart()
 
-fig1 = plt.figure(1, facecolor="0.98")
+fig1 = plt.figure(1, facecolor="0.80")
 fig1.canvas.mpl_connect('key_press_event', press)
 spec1 = gridspec.GridSpec(ncols=1, nrows=2, figure=fig1)
 ax1 = fig1.add_subplot(spec1[:, 0])

@@ -2,11 +2,11 @@
 """
 Created on Sun Mar 26 22:07:28 2017
 
-HW 5.2 -  A pendulum is constructed from a bob of mass m connected to a rod
-          that acts as a stiff spring with spring constant k.  Motion is in
-          the xy plane.  RK4 will be used to model the bob's motion.
+A pendulum is constructed from a bob of mass m connected to a board
+that can translate left and right along the X axis (frictionlness).  
+RK4 will be used to model the bob's motion.
 
-Date last modified: 3/27/17          
+Date last modified: 6/7/21          
 @author: NEWCOMERGA1
 """
 

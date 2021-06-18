@@ -39,8 +39,8 @@ def pendulumBoard(s, t, param):
     v = s[1]
     phi1 = s[2]
     w1 = s[3]
-    phi2 = s[2]
-    w2 = s[3]
+    phi2 = s[4]
+    w2 = s[5]
     
     mass_denom = m1*(np.sin(phi1)**2) + m2*(np.sin(phi2)**2) + M
     
@@ -113,7 +113,7 @@ print(    '''
 pi = np.pi
 m1 = 0.1         # mass of pendulum bob 1 (kg)
 m2 = 0.1         # mass of pendulum bob 2 (kg)
-L1 = 1.0         # length of pendulum 1 (m)
+L1 = 0.8         # length of pendulum 1 (m)
 L2 = 1.0         # length of pendulum 2 (m)
 c1 = -0.1        # distance of board COM to bob 2 pendulum pin (m)
 c2 = 0.1         # distance of board COM to bob 2 pendulum pin (m)
@@ -135,7 +135,7 @@ state = np.array([r0, v0, phi10, w10, phi20, w20])        # state vector
 
 
 # Time step
-nStep = 1000    # number of steps
+nStep = 6000    # number of steps
 tau = 0.01       # time step (s)
 
 # Lists for plotting
@@ -213,7 +213,7 @@ def updateChart():
         L = np.max([L1, L2])
         
         ax1.scatter(x1_plot[curr_pos], y1_plot[curr_pos], s=5, color='r')
-        ax1.scatter(x2_plot[curr_pos], y2_plot[curr_pos], s=5, color='r')
+        ax1.scatter(x2_plot[curr_pos], y2_plot[curr_pos], s=5, color='g')
         ax1.plot(x1_plot[0:curr_pos], y1_plot[0:curr_pos], lw=1, color='blue')
         ax1.plot(x2_plot[0:curr_pos], y2_plot[0:curr_pos], lw=1, color='orange')
         ax1.set_title("Spring Pendulum Motion ({}/{})".format(curr_pos+1, len(x1_plot)))
@@ -268,9 +268,9 @@ def press(e):
     global curr_pos, plotMotion
     
     if e.key == 'left':
-        curr_pos -= 10
+        curr_pos -= 20
     elif e.key == 'right':
-        curr_pos += 10
+        curr_pos += 20
     elif e.key == "up":
         plotMotion = not plotMotion
     elif e.key == "down":

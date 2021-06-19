@@ -11,6 +11,7 @@ Date last modified: 6/17/21
 """
 
 import numpy as np
+from scipy.signal import argrelmax, argrelmin
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
@@ -113,10 +114,10 @@ print(    '''
 pi = np.pi
 m1 = 0.1         # mass of pendulum bob 1 (kg)
 m2 = 0.1         # mass of pendulum bob 2 (kg)
-L1 = 0.8         # length of pendulum 1 (m)
+L1 = 1.0         # length of pendulum 1 (m)
 L2 = 1.0         # length of pendulum 2 (m)
-c1 = -0.1        # distance of board COM to bob 2 pendulum pin (m)
-c2 = 0.1         # distance of board COM to bob 2 pendulum pin (m)
+c1 = -0.5        # distance of board COM to bob 2 pendulum pin (m)
+c2 = 0.5         # distance of board COM to bob 2 pendulum pin (m)
 M = 1          # mass of the board (kg)
 g = 9.81        # graviational constant (m/s^2)
 time = 0.0      # (s)
@@ -125,7 +126,7 @@ param = [m1, m2, L1, L2, M, g]    # list of parameters
 
 # Setting initial values
 phi10 = pi/180 * 45
-phi20 = pi/180 * -45
+phi20 = pi/180 * -60
 w10 = 0.0             # initial angular velocity of bob 1
 w20 = 0.0             # initial angular velocity of bob 2
 r0 = 0               # initial position of the board
@@ -173,6 +174,64 @@ for iStep in range(nStep):
     time += tau    
 
 
+
+phi1_argMax = argrelmax(np.array(phi1_plot))[0]
+phi1_argMin = argrelmin(np.array(phi1_plot))[0]
+phi2_argMax = argrelmax(np.array(phi2_plot))[0]
+phi2_argMin = argrelmin(np.array(phi2_plot))[0]
+
+phi1_argExtrema = np.sort(np.concatenate((phi1_argMin, phi1_argMax)))
+phi2_argExtrema = np.sort(np.concatenate((phi2_argMin, phi2_argMax)))
+
+phi1_extrema = np.array(phi1_plot)[phi1_argExtrema]
+phi2_extrema = np.array(phi2_plot)[phi2_argExtrema]
+t1_extrema = np.array(t_plot)[phi1_argExtrema]
+t2_extrema = np.array(t_plot)[phi2_argExtrema]
+
+phi1_count = np.linspace(0, len(t1_extrema)-1, len(t1_extrema))
+phi2_count = np.linspace(0, len(t2_extrema)-1, len(t2_extrema))
+
+# Post-processing
+phi1_wavTime = []
+phi2_wavTime = []
+phi1_wavelength = []
+phi2_wavelength = []
+t1_prevMax = -1
+t2_prevMax = -1
+
+for i in range(2, len(X_plot)):
+    t = t_plot[i-1]
+    
+    # phi1
+    phi1_0 = phi1_plot[i-2]
+    phi1_1 = phi1_plot[i-1]
+    phi1_2 = phi1_plot[i]
+    if phi1_1 > phi1_0 and phi1_1 > phi1_2:
+        # max
+        if t1_prevMax == -1:
+            t1_prevMax = t_plot[i-1]
+        else:
+            wav = t - t1_prevMax
+            phi1_wavelength.append(wav)
+            phi1_wavTime.append(t)
+            t1_prevMax = t
+    
+    # phi2
+    phi2_0 = phi2_plot[i-2]
+    phi2_1 = phi2_plot[i-1]
+    phi2_2 = phi2_plot[i]
+    if phi2_1 > phi2_0 and phi2_1 > phi2_2:
+        # max
+        if t2_prevMax == -1:
+            t2_prevMax = t
+        else:
+            wav = t - t2_prevMax
+            phi2_wavelength.append(wav)
+            phi2_wavTime.append(t)
+            t2_prevMax = t
+    
+    
+
 # Output
 print("\nWith constants:")
 print("  m1 = {} kg".format(m1))
@@ -216,14 +275,14 @@ def updateChart():
         ax1.scatter(x2_plot[curr_pos], y2_plot[curr_pos], s=5, color='g')
         ax1.plot(x1_plot[0:curr_pos], y1_plot[0:curr_pos], lw=1, color='blue')
         ax1.plot(x2_plot[0:curr_pos], y2_plot[0:curr_pos], lw=1, color='orange')
-        ax1.set_title("Spring Pendulum Motion ({}/{})".format(curr_pos+1, len(x1_plot)))
+        ax1.set_title("Spring Pendulum Motion (t={:.3f}s / {:.3f}s)".format(t_plot[curr_pos], t_plot[-1]))
         ax1.set_xlabel("x")
         ax1.set_xlim(minX, maxX)
         ax1.set_ylabel("y")
         ax1.grid(True)
         ax1.plot([X_plot[curr_pos]+c1,x1_plot[curr_pos]],[Y_plot[curr_pos],y1_plot[curr_pos]], color='r', linestyle='-')
         ax1.plot([X_plot[curr_pos]+c2,x2_plot[curr_pos]],[Y_plot[curr_pos],y2_plot[curr_pos]], color='r', linestyle='-')
-        ax1.plot([X_plot[curr_pos]-L/4, X_plot[curr_pos]+L/4], [0,0], color="brown", lw=5)
+        ax1.plot([X_plot[curr_pos]-1, X_plot[curr_pos]+1], [0,0], color="brown", lw=5)
             
         # Drawing pendulum and data
         ax1.plot([0,0],[0,minY], color='k', linestyle='-', linewidth=2)
@@ -292,7 +351,31 @@ ax4 = fig1.add_subplot(spec1[2, 0])
 
 updateChart()
 
+if False:
+    fig2 = plt.figure(2)
+    ax_2 = fig2.add_subplot(111)
+    ax_2.plot(phi1_wavTime, phi1_wavelength, label="Bob #1")
+    ax_2.plot(phi2_wavTime, phi2_wavelength, label="Bob #2")
+    ax_2.grid()
+    ax_2.legend()
+    ax_2.set_title("Wavelength of Pendulums")
+    ax_2.set_xlabel("Time(s)")
+    ax_2.set_ylabel("Wavelength (s)")    
+    
+    fig3 = plt.figure(3)
+    ax_3 = fig3.add_subplot(111)
+    ax_3.plot(t1_extrema, phi1_count, label="Bob #1")
+    ax_3.plot(t2_extrema, phi2_count, label="Bob #2")
+    ax_3.grid()
+    ax_3.legend()
+    ax_3.set_title("Extrema Counter")
+    ax_3.set_xlabel("Time(s)")
+    ax_3.set_ylabel("# Extrema")    
+   
 
-    
-    
+
+
+
+
+
     
